@@ -4,10 +4,12 @@ import entity.Ticket;
 import exception.DaoException;
 import util.ConnectionManager;
 
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class TicketDao {
     private final static TicketDao INSTANCE = new TicketDao();
@@ -72,13 +74,7 @@ public class TicketDao {
             var result = prepareStatement.executeQuery();
             while (result.next())
                 tickets.add(
-                        new Ticket(result.getLong("id"),
-                                result.getString("passport_no"),
-                                result.getString("passenger_name"),
-                                result.getLong("flight_id"),
-                                result.getString("seat_no"),
-                                result.getBigDecimal("cost")
-                        )
+                        getTicket(result)
                 );
             return tickets;
         } catch (SQLException e) {
@@ -86,22 +82,26 @@ public class TicketDao {
         }
     }
 
-    public static Ticket findById(Long id) {
+    private static Ticket getTicket(ResultSet result) throws SQLException {
+        return new Ticket(result.getLong("id"),
+                result.getString("passport_no"),
+                result.getString("passenger_name"),
+                result.getLong("flight_id"),
+                result.getString("seat_no"),
+                result.getBigDecimal("cost")
+        );
+    }
+
+    public static Optional<Ticket> findById(Long id) {
         try (var connection = ConnectionManager.open();
              var prepareStatement = connection.prepareStatement(FIND_BY_ID_SQL)) {
             prepareStatement.setLong(1, id);
             Ticket ticket = null;
             var result = prepareStatement.executeQuery();
             while (result.next()) {
-                ticket = new Ticket(result.getLong("id"),
-                        result.getString("passport_no"),
-                        result.getString("passenger_name"),
-                        result.getLong("flight_id"),
-                        result.getString("seat_no"),
-                        result.getBigDecimal("cost")
-                );
+                ticket = getTicket(result);
             }
-            return ticket;
+            return Optional.ofNullable(ticket);
         } catch (SQLException e) {
             throw new DaoException(e);
         }
