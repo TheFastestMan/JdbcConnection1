@@ -1,12 +1,13 @@
 package entity;
 
 import lombok.*;
+import util.ConnectionManager;
 
 import java.math.BigDecimal;
 
 @Getter
 @Setter
-@RequiredArgsConstructor
+@AllArgsConstructor
 @ToString
 @EqualsAndHashCode
 public class Ticket {
@@ -16,5 +17,6 @@ public class Ticket {
     private Long flightId;
     private String seatNo;
     private BigDecimal cost;
+
 
 }

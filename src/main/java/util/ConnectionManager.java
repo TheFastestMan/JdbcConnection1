@@ -1,5 +1,7 @@
 package util;
 
+import exception.DaoException;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -18,7 +20,7 @@ public final class ConnectionManager {
                     PropertiesUtil.get(USERNAME_KEY),
                     PropertiesUtil.get(PASSWORD_KEY));
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DaoException(e);
         }
     }
 }
