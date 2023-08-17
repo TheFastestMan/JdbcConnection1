@@ -33,6 +33,16 @@ public class TicketDao {
             WHERE id = ?;
             """;
 
+    private static final String UPDATE_SQL = """
+            UPDATE ticket
+             SET seat_no = ?, 
+                 cost = ?,
+                 passenger_name = ?, 
+                 passport_no = ?, 
+                 flight_id = ? 
+            WHERE id = ?;
+            """;
+
     public Ticket save(Ticket ticket) {
         try (var connection = ConnectionManager.open();
              var prepareStatement = connection.prepareStatement(SAVE_SQL,
@@ -102,6 +112,24 @@ public class TicketDao {
                 ticket = getTicket(result);
             }
             return Optional.ofNullable(ticket);
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        }
+    }
+
+    public static void update(Ticket ticket) {
+
+        try (var connection = ConnectionManager.open();
+             var prepareStatement = connection.prepareStatement(UPDATE_SQL)) {
+
+            prepareStatement.setString(1, ticket.getSeatNo());
+            prepareStatement.setBigDecimal(2, ticket.getCost());
+            prepareStatement.setString(3, ticket.getPassengerName());
+            prepareStatement.setString(4, ticket.getPassportNo());
+            prepareStatement.setLong(5, ticket.getFlightId());
+            prepareStatement.setLong(6, ticket.getId());
+
+            prepareStatement.executeUpdate();
         } catch (SQLException e) {
             throw new DaoException(e);
         }
