@@ -1,7 +1,6 @@
 import util.ConnectionManager;
 
 import java.sql.SQLException;
-import java.sql.Savepoint;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -28,6 +27,9 @@ public class ConnectionRunner {
         getAmountOfTicketsPurchase();
 
         updateTicket(seat, coast, passengerName, passportNo, id);
+
+
+
 
     }
 
