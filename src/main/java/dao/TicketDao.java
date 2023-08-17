@@ -1,5 +1,6 @@
 package dao;
 
+import dto.TicketFilter;
 import entity.Ticket;
 import exception.DaoException;
 import util.ConnectionManager;
@@ -10,8 +11,9 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
-public class TicketDao {
+public class TicketDao implements Dao <Long, Ticket>{
     private final static TicketDao INSTANCE = new TicketDao();
 
     private static final String SAVE_SQL = """
@@ -25,12 +27,12 @@ public class TicketDao {
             """;
 
     private static final String FIND_ALL_SQL = """
-            SELECT id, passport_no, passenger_name, flight_id, seat_no, cost FROM ticket;
+            SELECT id, passport_no, passenger_name, flight_id, seat_no, cost FROM ticket
             """;
 
     private static final String FIND_BY_ID_SQL = """
             SELECT id, passport_no, passenger_name, flight_id, seat_no, cost FROM ticket 
-            WHERE id = ?;
+            WHERE id = ?
             """;
 
     private static final String UPDATE_SQL = """
@@ -40,7 +42,7 @@ public class TicketDao {
                  passenger_name = ?, 
                  passport_no = ?, 
                  flight_id = ? 
-            WHERE id = ?;
+            WHERE id = ?
             """;
 
     public Ticket save(Ticket ticket) {
@@ -76,7 +78,7 @@ public class TicketDao {
         }
     }
 
-    public static List<Ticket> findAll() {
+    public List<Ticket> findAll() {
         try (var connection = ConnectionManager.open();
              var prepareStatement = connection.prepareStatement(FIND_ALL_SQL)) {
             List<Ticket> tickets = new ArrayList();
@@ -92,7 +94,51 @@ public class TicketDao {
         }
     }
 
-    private static Ticket getTicket(ResultSet result) throws SQLException {
+
+    public List<Ticket> findAll(TicketFilter filter) {
+        List<Object> parameters = new ArrayList<>();
+        List<String> whereSql = new ArrayList<>();
+
+        if (filter.passengerName() != null) {
+            parameters.add(filter.passengerName());
+            whereSql.add("passenger_name = ?");
+        }
+
+        if (filter.seatNo() != null) {
+            parameters.add("%" + filter.seatNo() + "%");
+            whereSql.add("seat_no like ?");
+        }
+        parameters.add(filter.limit());
+        parameters.add(filter.offset());
+        var where = whereSql.stream().collect(Collectors.joining(
+                " AND ",
+               parameters.size() > 2 ? " WHERE " : "  ",
+                " LIMIT ? OFFSET ? "
+        ));
+
+        String sql = FIND_ALL_SQL + where;
+
+        try (var connection = ConnectionManager.open();
+             var prepareStatement = connection.prepareStatement(sql)) {
+            List<Ticket> tickets = new ArrayList();
+
+            for (int i = 0; i < parameters.size(); i++) {
+                prepareStatement.setObject(i + 1, parameters.get(i));
+            }
+            System.out.println(prepareStatement);
+            var result = prepareStatement.executeQuery();
+            while (result.next())
+                tickets.add(
+                        getTicket(result)
+                );
+            return tickets;
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        }
+    }
+
+
+    private Ticket getTicket(ResultSet result) throws SQLException {
         return new Ticket(result.getLong("id"),
                 result.getString("passport_no"),
                 result.getString("passenger_name"),
@@ -102,7 +148,7 @@ public class TicketDao {
         );
     }
 
-    public static Optional<Ticket> findById(Long id) {
+    public Optional<Ticket> findById(Long id) {
         try (var connection = ConnectionManager.open();
              var prepareStatement = connection.prepareStatement(FIND_BY_ID_SQL)) {
             prepareStatement.setLong(1, id);
@@ -117,7 +163,7 @@ public class TicketDao {
         }
     }
 
-    public static void update(Ticket ticket) {
+    public boolean update(Ticket ticket) {
 
         try (var connection = ConnectionManager.open();
              var prepareStatement = connection.prepareStatement(UPDATE_SQL)) {
@@ -129,10 +175,11 @@ public class TicketDao {
             prepareStatement.setLong(5, ticket.getFlightId());
             prepareStatement.setLong(6, ticket.getId());
 
-            prepareStatement.executeUpdate();
+            return prepareStatement.executeUpdate() > 0;
         } catch (SQLException e) {
             throw new DaoException(e);
         }
+
     }
 
     private TicketDao() {
