@@ -37,15 +37,16 @@ public class FlightDao implements Dao<Long, Flight> {
     public boolean update(Flight flight) {
 
         try (var connection = ConnectionManager.open();
-            var prepareStatement = connection.prepareStatement(UPDATE_SQL)) {
+             var prepareStatement = connection.prepareStatement(UPDATE_SQL)) {
 
-            prepareStatement.setString(1,flight.getFlightNo());
+            prepareStatement.setString(1, flight.getFlightNo());
             prepareStatement.setTimestamp(2, Timestamp.valueOf(flight.getDepartureDate()));
             prepareStatement.setString(3, flight.getDepartureAirportCode());
             prepareStatement.setTimestamp(4, Timestamp.valueOf(flight.getArrivalDate()));
             prepareStatement.setString(5, flight.getArrivalAirportCode());
-            prepareStatement.setInt(6,flight.getAircraftId());
+            prepareStatement.setInt(6, flight.getAircraftId());
             prepareStatement.setString(7, String.valueOf(flight.getStatus()));
+            prepareStatement.setLong(8, flight.getId());
 
             return prepareStatement.executeUpdate() > 0;
 
