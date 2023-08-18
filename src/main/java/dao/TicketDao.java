@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class TicketDao implements Dao <Long, Ticket>{
+public class TicketDao implements Dao<Long, Ticket> {
     private final static TicketDao INSTANCE = new TicketDao();
 
     private static final String SAVE_SQL = """
@@ -68,9 +68,10 @@ public class TicketDao implements Dao <Long, Ticket>{
                 ticket.setId(keys.getLong("id"));
             return ticket;
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DaoException(e);
         }
     }
+
 
     public boolean delete(Long id) {
 
@@ -118,7 +119,7 @@ public class TicketDao implements Dao <Long, Ticket>{
         parameters.add(filter.offset());
         var where = whereSql.stream().collect(Collectors.joining(
                 " AND ",
-               parameters.size() > 2 ? " WHERE " : "  ",
+                parameters.size() > 2 ? " WHERE " : "  ",
                 " LIMIT ? OFFSET ? "
         ));
 

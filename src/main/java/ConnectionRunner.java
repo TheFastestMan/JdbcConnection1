@@ -15,16 +15,22 @@ public class ConnectionRunner {
         LocalDate departureDate = LocalDate.of(2020, 01, 22);
         LocalDate arrivalDate = LocalDate.of(2020, 01, 22);
 
-
-        Flight flight = new Flight(2L, "xxx", departureDate.atStartOfDay(),
-                "MMM", arrivalDate.atStartOfDay(), "MMM", 1,
+        Flight flight = new Flight(2L, "XXX", departureDate.atStartOfDay(),
+                "LDN", arrivalDate.atStartOfDay(), "LDN", 1,
                 FlightStatus.ARRIVED);
         var ticketDao = TicketDao.getInstance();
         var flightDao = FlightDao.getInstance();
 
         var filter = new TicketFilter(null, null, 5, 0);
 
-        flightDao.update(flight);
+       // flightDao.update(flight);
+
+       // System.out.println(flightDao.findById(9L));
+
+       //flightDao.delete(2L);
+
+       //flightDao.save(flight);
+
 
 
     }
