@@ -38,7 +38,7 @@ public class FlightDao implements Dao<Long, Flight> {
             """;
 
     private static final String SAVE_SQL = """
-            insert into flight (
+            INSERT INTO flight (
             flight_no, 
             departure_date,
             departure_airport_code, 
@@ -47,7 +47,7 @@ public class FlightDao implements Dao<Long, Flight> {
             aircraft_id,
             status
             )
-            values(?,?,?,?,?,?,?);
+            VALUES(?,?,?,?,?,?,?);
             """;
     private static final String DELETE_SQL = """
             DELETE FROM flight WHERE
