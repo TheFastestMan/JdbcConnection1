@@ -1,6 +1,8 @@
+import dao.AircraftDao;
 import dao.FlightDao;
 import dao.TicketDao;
 import dto.TicketFilter;
+import entity.Aircraft;
 import entity.Flight;
 import entity.FlightStatus;
 import entity.Ticket;
@@ -20,7 +22,7 @@ public class ConnectionRunner {
                 FlightStatus.ARRIVED);
         var ticketDao = TicketDao.getInstance();
         var flightDao = FlightDao.getInstance();
-
+        var a = AircraftDao.getInstance();
         var filter = new TicketFilter(null, null, 5, 0);
 
        // flightDao.update(flight);
@@ -31,7 +33,12 @@ public class ConnectionRunner {
 
        //flightDao.save(flight);
 
+        Aircraft aircraft = new Aircraft(6L, "AAAA");
 
+       // a.save(aircraft);
+        //a.update(aircraft);
+        //a.delete(5L);
+        System.out.println(a.findById(1L));
 
     }
 }

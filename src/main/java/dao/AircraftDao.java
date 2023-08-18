@@ -30,7 +30,7 @@ public class AircraftDao implements Dao<Long, Aircraft> {
             INSERT INTO aircraft (
             model
             )
-            VALUES (?,?);
+            VALUES (?);
             """;
     private static final String DELETE_SQL = """
             DELETE FROM aircraft WHERE
@@ -43,6 +43,7 @@ public class AircraftDao implements Dao<Long, Aircraft> {
         try (var connection = ConnectionManager.open();
              var prepareStatement = connection.prepareStatement(UPDATE_SQL)) {
             prepareStatement.setString(1, aircraft.getModel());
+            prepareStatement.setLong(2, aircraft.getId());
             return prepareStatement.executeUpdate() > 0;
         } catch (SQLException e) {
             throw new DaoException(e);
@@ -71,7 +72,7 @@ public class AircraftDao implements Dao<Long, Aircraft> {
     @Override
     public Optional<Aircraft> findById(Long id) {
         try (var connection = ConnectionManager.open();
-             var prepareStatement = connection.prepareStatement(UPDATE_SQL)) {
+             var prepareStatement = connection.prepareStatement(FIND_BY_ID_SQL)) {
 
             Aircraft aircraft = null;
             prepareStatement.setLong(1, id);
@@ -91,10 +92,13 @@ public class AircraftDao implements Dao<Long, Aircraft> {
     public Aircraft save(Aircraft aircraft) {
 
         try (var connection = ConnectionManager.open();
-             var prepareStatement = connection.prepareStatement(UPDATE_SQL,
+             var prepareStatement = connection.prepareStatement(SAVE_SQL,
                      Statement.RETURN_GENERATED_KEYS)) {
+
             prepareStatement.setString(1, aircraft.getModel());
+
             prepareStatement.executeUpdate();
+
             var key = prepareStatement.getGeneratedKeys();
             if (key.next())
                 aircraft.setId(key.getLong("id"));
@@ -109,7 +113,7 @@ public class AircraftDao implements Dao<Long, Aircraft> {
     public boolean delete(Long id) {
 
         try (var connection = ConnectionManager.open();
-             var prepareStatement = connection.prepareStatement(UPDATE_SQL)) {
+             var prepareStatement = connection.prepareStatement(DELETE_SQL)) {
             prepareStatement.setLong(1, id);
 
             prepareStatement.executeUpdate();
