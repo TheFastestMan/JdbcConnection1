@@ -86,7 +86,7 @@ public class TicketDao implements Dao <Long, Ticket>{
             var result = prepareStatement.executeQuery();
             while (result.next())
                 tickets.add(
-                        getTicket(result)
+                        buildTicket(result)
                 );
             return tickets;
         } catch (SQLException e) {
@@ -129,7 +129,7 @@ public class TicketDao implements Dao <Long, Ticket>{
             var result = prepareStatement.executeQuery();
             while (result.next())
                 tickets.add(
-                        getTicket(result)
+                        buildTicket(result)
                 );
             return tickets;
         } catch (SQLException e) {
@@ -138,7 +138,7 @@ public class TicketDao implements Dao <Long, Ticket>{
     }
 
 
-    private Ticket getTicket(ResultSet result) throws SQLException {
+    private Ticket buildTicket(ResultSet result) throws SQLException {
         return new Ticket(result.getLong("id"),
                 result.getString("passport_no"),
                 result.getString("passenger_name"),
@@ -155,7 +155,7 @@ public class TicketDao implements Dao <Long, Ticket>{
             Ticket ticket = null;
             var result = prepareStatement.executeQuery();
             while (result.next()) {
-                ticket = getTicket(result);
+                ticket = buildTicket(result);
             }
             return Optional.ofNullable(ticket);
         } catch (SQLException e) {

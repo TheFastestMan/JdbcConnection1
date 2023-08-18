@@ -1,13 +1,22 @@
 package entity;
 
-import java.time.LocalDate;
+import lombok.*;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
+@Getter
+@Setter
+@AllArgsConstructor
+@ToString
+@EqualsAndHashCode
 public class Flight {
     private Long id;
     private String flightNo;
-    private LocalDate departureDate;
+    private LocalDateTime departureDate;
     private String departureAirportCode;
-    private LocalDate arrivalDate;
+    private LocalDateTime arrivalDate;
+    private String arrivalAirportCode;
     private Integer aircraftId;
     private FlightStatus status;
 
