@@ -1,6 +1,7 @@
 package dao;
 
 import entity.Aircraft;
+import entity.Airport;
 import exception.DaoException;
 import util.ConnectionManager;
 
@@ -10,40 +11,40 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class AircraftDao implements Dao<Long, Aircraft> {
-
-    private static final AircraftDao INSTANCE = new AircraftDao();
+public class AirportDao implements Dao<String, Airport> {
+    private static final AirportDao INSTANCE = new AirportDao();
 
     private static final String FIND_ALL_SQL = """
-            SELECT id, model FROM aircraft
+            SELECT code, country, city FROM airport
             """;
     private static final String FIND_BY_ID_SQL = FIND_ALL_SQL + """
-            WHERE id = ?;
+            WHERE code = ?;
             """;
     private static final String UPDATE_SQL = """
-            UPDATE aircraft
-             SET model = ?
-            WHERE id = ?
+            UPDATE airport
+             SET country = ?, city = ?
+            WHERE code = ?
             """;
 
     private static final String SAVE_SQL = """
-            INSERT INTO aircraft (
-            model
+            INSERT INTO airport (
+            code, country, city
             )
-            VALUES (?);
+            VALUES (?,?,?);
             """;
     private static final String DELETE_SQL = """
-            DELETE FROM aircraft WHERE
-            id = ?;
+            DELETE FROM airport WHERE
+            code = ?;
             """;
 
 
     @Override
-    public boolean update(Aircraft aircraft) {
+    public boolean update(Airport airport) {
         try (var connection = ConnectionManager.open();
              var prepareStatement = connection.prepareStatement(UPDATE_SQL)) {
-            prepareStatement.setString(1, aircraft.getModel());
-            prepareStatement.setLong(2, aircraft.getId());
+            prepareStatement.setString(1, airport.getCountry());
+            prepareStatement.setString(2, airport.getCity());
+            prepareStatement.setString(3, String.valueOf(airport.getCode()));
             return prepareStatement.executeUpdate() > 0;
         } catch (SQLException e) {
             throw new DaoException(e);
@@ -51,69 +52,65 @@ public class AircraftDao implements Dao<Long, Aircraft> {
     }
 
     @Override
-    public List<Aircraft> findAll() {
+    public List<Airport> findAll() {
         try (var connection = ConnectionManager.open();
              var prepareStatement = connection.prepareStatement(FIND_ALL_SQL)) {
-            List<Aircraft> aircrafts = new ArrayList<>();
+            List<Airport> airports = new ArrayList<>();
 
             var result = prepareStatement.executeQuery();
             while (result.next())
-                aircrafts.add(new Aircraft(
-                                result.getLong("id"),
-                                result.getString("model")
+                airports.add(new Airport(
+                                result.getString("code"),
+                                result.getString("country"),
+                                result.getString("city")
                         )
                 );
-            return aircrafts;
+            return airports;
         } catch (SQLException e) {
             throw new DaoException(e);
         }
     }
 
     @Override
-    public Optional<Aircraft> findById(Long id) {
+    public Optional<Airport> findById(String code) {
         try (var connection = ConnectionManager.open();
              var prepareStatement = connection.prepareStatement(FIND_BY_ID_SQL)) {
 
-            Aircraft aircraft = null;
-            prepareStatement.setLong(1, id);
+            Airport airport = null;
+            prepareStatement.setString(1, code);
 
             var result = prepareStatement.executeQuery();
             while (result.next())
-                aircraft = new Aircraft(result.getLong("id"),
-                        result.getString("model"));
-            return Optional.ofNullable(aircraft);
+                airport = new Airport(result.getString("code"),
+                        result.getString("country"),
+                        result.getString("city"));
+            return Optional.ofNullable(airport);
         } catch (SQLException e) {
             throw new DaoException(e);
         }
     }
 
     @Override
-    public Aircraft save(Aircraft aircraft) {
-
+    public Airport save(Airport airport) {
         try (var connection = ConnectionManager.open();
-             var prepareStatement = connection.prepareStatement(SAVE_SQL,
-                     Statement.RETURN_GENERATED_KEYS)) {
+             var prepareStatement = connection.prepareStatement(SAVE_SQL)) {
 
-            prepareStatement.setString(1, aircraft.getModel());
+            prepareStatement.setString(1, airport.getCode());
+            prepareStatement.setString(2, airport.getCity());
+            prepareStatement.setString(3, airport.getCountry());
 
             prepareStatement.executeUpdate();
-
-            var key = prepareStatement.getGeneratedKeys();
-            if (key.next())
-                aircraft.setId(key.getLong("id"));
-
         } catch (SQLException e) {
             throw new DaoException(e);
         }
-        return aircraft;
+        return airport;
     }
 
     @Override
-    public boolean delete(Long id) {
-
+    public boolean delete(String code) {
         try (var connection = ConnectionManager.open();
              var prepareStatement = connection.prepareStatement(DELETE_SQL)) {
-            prepareStatement.setLong(1, id);
+            prepareStatement.setString(1, code);
 
             prepareStatement.executeUpdate();
         } catch (SQLException e) {
@@ -122,10 +119,10 @@ public class AircraftDao implements Dao<Long, Aircraft> {
         return false;
     }
 
-    private AircraftDao() {
+    private AirportDao() {
     }
 
-    public static AircraftDao getInstance() {
+    public static AirportDao getInstance() {
         return INSTANCE;
     }
 }
