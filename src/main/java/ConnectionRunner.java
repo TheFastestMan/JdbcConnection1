@@ -13,7 +13,7 @@ public class ConnectionRunner {
 
         var filter = new TicketFilter(null, null, 5, 0);
 
-        System.out.println(flightDao.findAll());
+        System.out.println(ticketDao.findById(3L));
 
 
     }

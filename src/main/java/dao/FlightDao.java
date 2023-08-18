@@ -2,13 +2,11 @@ package dao;
 
 import entity.Flight;
 import entity.FlightStatus;
-import entity.Ticket;
 import exception.DaoException;
 import util.ConnectionManager;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -19,13 +17,34 @@ public class FlightDao implements Dao<Long, Flight> {
     private static final String FIND_ALL_SQL = """
             SELECT id, flight_no, departure_date, 
             departure_airport_code, arrival_date,
-             arrival_airport_code,aircraft_id,         
-            status 
+             arrival_airport_code,aircraft_id, status 
             FROM flight;
+            """;
+    private static final String UPDATE_SQL = """
+            UPDATE flight
+             SET flight_no = ?, 
+                 departure_date = ?,
+                 departure_airport_code = ?, 
+                 arrival_date = ?, 
+                 arrival_airport_code = ?,
+                 aircraft_id = ?,
+                 status = ?
+            WHERE id = ?
             """;
 
     @Override
     public boolean update(Flight flight) {
+
+        try (var connection = ConnectionManager.open();
+            var prepareStatement = connection.prepareStatement(UPDATE_SQL)) {
+
+            prepareStatement.setString(1,flight.getFlightNo());
+            prepareStatement.setDate();1,flight.getFlightNo());
+
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
         return false;
     }
 
@@ -58,6 +77,7 @@ public class FlightDao implements Dao<Long, Flight> {
 
     @Override
     public boolean delete(Long id) {
+
         return false;
     }
 
