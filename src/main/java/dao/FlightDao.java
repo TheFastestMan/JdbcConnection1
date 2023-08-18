@@ -7,6 +7,7 @@ import util.ConnectionManager;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -39,13 +40,19 @@ public class FlightDao implements Dao<Long, Flight> {
             var prepareStatement = connection.prepareStatement(UPDATE_SQL)) {
 
             prepareStatement.setString(1,flight.getFlightNo());
-            prepareStatement.setDate();1,flight.getFlightNo());
+            prepareStatement.setTimestamp(2, Timestamp.valueOf(flight.getDepartureDate()));
+            prepareStatement.setString(3, flight.getDepartureAirportCode());
+            prepareStatement.setTimestamp(4, Timestamp.valueOf(flight.getArrivalDate()));
+            prepareStatement.setString(5, flight.getArrivalAirportCode());
+            prepareStatement.setInt(6,flight.getAircraftId());
+            prepareStatement.setString(7, String.valueOf(flight.getStatus()));
 
+            return prepareStatement.executeUpdate() > 0;
 
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-        return false;
+
     }
 
     @Override
