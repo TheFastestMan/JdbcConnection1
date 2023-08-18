@@ -1,25 +1,20 @@
-import dao.AircraftDao;
-import dao.AirportDao;
-import dao.FlightDao;
-import dao.TicketDao;
-import dto.TicketFilter;
+import dao.*;
+
 import entity.*;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 public class ConnectionRunner {
     public static void main(String[] args) {
+        Aircraft aircraft = new Aircraft(1L, "AAA");
+        Seat seat = new Seat(aircraft, "I6");
+        SeatDao seatDao = SeatDao.getInstance();
 
-        AirportDao airportDao = AirportDao.getInstance();
-        Airport airport = new Airport("AAA", "IIA","IIA");
+        //seatDao.save(seat);
+        //System.out.println(seatDao.findAll());
+        //Aircraft searchAircraft = new Aircraft(1L, null);
+        //System.out.println(seatDao.findById(searchAircraft));
+        seatDao.update(seat);
 
-       // airportDao.save(airport);
-       // airportDao.update(airport);
-        //System.out.println(airportDao.findAll());
-        //System.out.println(airportDao.findById("MNK"));
-        //airportDao.delete("qee");
 
     }
 }

@@ -15,8 +15,8 @@ create table aircraft
 
 create table seat
 (
-    aircraft_id int REFERENCES aircraft,
-    seat_no     char(4) NOT NULL,
+      int REFERENCES aircraft,
+      char(4) NOT NULL,
     PRIMARY KEY (aircraft_id, seat_no)
 );
 
