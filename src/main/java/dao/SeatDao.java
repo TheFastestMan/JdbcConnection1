@@ -112,13 +112,13 @@ public class SeatDao implements Dao<Aircraft, Seat> {
     public boolean delete(Aircraft aircraftId) {
         try (var connection = ConnectionManager.open();
              var prepareStatement = connection.prepareStatement(DELETE_SQL)) {
-            prepareStatement.setObject(1, aircraftId);
+            prepareStatement.setLong(1, aircraftId.getId());
 
             prepareStatement.executeUpdate();
+            return true;
         } catch (SQLException e) {
             throw new DaoException(e);
         }
-        return false;
     }
 
     private SeatDao() {

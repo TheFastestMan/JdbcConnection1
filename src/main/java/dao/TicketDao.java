@@ -58,7 +58,7 @@ public class TicketDao implements Dao<Long, Ticket> {
 
             prepareStatement.setString(1, ticket.getPassportNo());
             prepareStatement.setString(2, ticket.getPassengerName());
-            prepareStatement.setObject(3, ticket.getFlight());
+            prepareStatement.setLong(3, ticket.getFlight().getId());
             prepareStatement.setString(4, ticket.getSeatNo());
             prepareStatement.setBigDecimal(5, ticket.getCost());
 
@@ -191,7 +191,7 @@ public class TicketDao implements Dao<Long, Ticket> {
             prepareStatement.setBigDecimal(2, ticket.getCost());
             prepareStatement.setString(3, ticket.getPassengerName());
             prepareStatement.setString(4, ticket.getPassportNo());
-            prepareStatement.setObject(5, ticket.getFlight());
+            prepareStatement.setLong(5, ticket.getFlight().getId());
             prepareStatement.setLong(6, ticket.getId());
 
             return prepareStatement.executeUpdate() > 0;
