@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import service.TicketService;
+import util.JspHelper;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -21,15 +22,10 @@ public class TicketServlet extends HttpServlet {
         resp.setCharacterEncoding(StandardCharsets.UTF_8.name());
 
         Long flightId = Long.valueOf(req.getParameter("flightId"));
-        try (var writer = resp.getWriter()) {
-            writer.write("<h1> Купленные билеты:</h1>");
-            writer.write("<ul>");
-            ticketService.findAllByFlightId(flightId).stream().forEach(ticketDto ->
-                    writer.write("""
-                            <li>%s</li>
-                            """.formatted( ticketDto.seatNo())));
-            writer.write("</ul>");
-        }
+
+        req.setAttribute("tickets",ticketService.findAllByFlightId(flightId));
+        req.getRequestDispatcher(JspHelper.getPath("tickets")).forward(req,resp );
+
 
     }
 }
