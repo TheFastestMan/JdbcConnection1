@@ -14,7 +14,7 @@
 <div>
     <SPAN>Rus</SPAN>
     <p>Size: ${requestScope.flights.size()}</p>
-    <p>Description: ${requestScope.flights.get(0).description()}</p>
+    <p>Description: ${requestScope.flights.get(9).description()}</p>
     <p>Id: ${requestScope.flights[1].id()}</p>
 </div>
 </body>

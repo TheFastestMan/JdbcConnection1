@@ -5,10 +5,9 @@ import entity.Flight;
 import entity.FlightStatus;
 import entity.Ticket;
 import exception.DaoException;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
+import org.hibernate.*;
 import org.hibernate.cfg.Configuration;
+import org.hibernate.criterion.Restrictions;
 import util.ConnectionManager;
 
 import java.sql.ResultSet;
@@ -28,7 +27,8 @@ public class TicketDao implements Dao<Long, Ticket> {
         try {
             Configuration configuration = new Configuration();
             configuration.configure();
-            configuration.addAnnotatedClass(TicketDao.class);
+            configuration.addAnnotatedClass(Ticket.class);
+            configuration.addAnnotatedClass(Flight.class);
             sessionFactory = configuration.buildSessionFactory();
         } catch (Exception e) {
             throw new ExceptionInInitializerError("Failed to create sessionFactory object." + e);
@@ -79,7 +79,14 @@ public class TicketDao implements Dao<Long, Ticket> {
         return false;
     }
 
-    public List<Ticket> findAllByFlightId(Long flightId) {
-        r
+
+    public List<Ticket> findAllByFlightId(Long id) {
+        try (Session session = sessionFactory.openSession()) {
+            Criteria criteria = session.createCriteria(Ticket.class);
+            criteria.add(Restrictions.eq("flight.id", id));
+            return criteria.list();
+        } catch (Exception e) {
+            throw new DaoException(e);
+        }
     }
 }

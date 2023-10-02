@@ -25,7 +25,7 @@ public class FlightDao implements Dao<Long, Flight> {
         try {
             Configuration configuration = new Configuration();
             configuration.configure();
-            configuration.addAnnotatedClass(FlightDao.class);
+            configuration.addAnnotatedClass(Flight.class);
             sessionFactory = configuration.buildSessionFactory();
         } catch (Exception e) {
             throw new ExceptionInInitializerError("Failed to create sessionFactory object." + e);
@@ -47,7 +47,11 @@ public class FlightDao implements Dao<Long, Flight> {
 
     @Override
     public List<Flight> findAll() {
-        return null;
+        try (Session session = sessionFactory.openSession()) {
+            return session.createQuery("from Flight", Flight.class).list();
+        } catch (Exception e) {
+            throw new DaoException(e);
+        }
     }
 
     @Override

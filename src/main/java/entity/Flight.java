@@ -29,6 +29,7 @@ public class Flight implements Serializable {
     private String arrivalAirportCode;
     @Column(name = "aircraft_id")
     private Integer aircraftId;
+    @Enumerated(EnumType.STRING)
     @Column(name = "status")
     private FlightStatus status;
 

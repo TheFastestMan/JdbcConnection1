@@ -18,12 +18,11 @@ public class Ticket {
     private String passportNo;
     @Column(name = "passenger_name")
     private String passengerName;
-    @Column(name = "flight")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "flight_id")
     private Flight flight;
     @Column(name = "seat_no")
     private String seatNo;
     @Column(name = "cost")
     private BigDecimal cost;
-
-
 }
