@@ -4,6 +4,10 @@ import entity.Aircraft;
 import entity.Airport;
 import entity.Seat;
 import exception.DaoException;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+import org.hibernate.cfg.Configuration;
 import util.ConnectionManager;
 
 import java.sql.SQLException;
@@ -14,117 +18,60 @@ import java.util.Optional;
 
 public class SeatDao implements Dao<Aircraft, Seat> {
     private static final SeatDao INSTANCE = new SeatDao();
+    private static SessionFactory sessionFactory;
 
-    private static final String FIND_ALL_SQL = """
-            SELECT s.aircraft_id, s.seat_no, a.model FROM seat s
-            LEFT JOIN aircraft a ON s.aircraft_id = a.id
-            """;
-    private static final String FIND_BY_ID_SQL = FIND_ALL_SQL + """
-            WHERE s.aircraft_id = ?;
-            """;
-    private static final String UPDATE_SQL = """
-            UPDATE seat
-             SET seat_no = ?
-            WHERE aircraft_id = ?
-            """;
-
-    private static final String SAVE_SQL = """
-            INSERT INTO seat (
-            aircraft_id,
-            seat_no
-            )
-            VALUES (?,?);
-            """;
-    private static final String DELETE_SQL = """
-            DELETE FROM seat WHERE
-            aircraft_id = ?;
-            """;
-
-    @Override
-    public boolean update(Seat seat) {
-        try (var connection = ConnectionManager.open();
-             var prepareStatement = connection.prepareStatement(UPDATE_SQL)) {
-            prepareStatement.setString(1, seat.getSeatNo());
-            prepareStatement.setLong(2, seat.getAircraft_id().getId());
-            return prepareStatement.executeUpdate() > 0;
-        } catch (SQLException e) {
-            throw new DaoException(e);
+    static {
+        try {
+            Configuration configuration = new Configuration();
+            configuration.configure();
+            configuration.addAnnotatedClass(SeatDao.class);
+            sessionFactory = configuration.buildSessionFactory();
+        } catch (Exception e) {
+            throw new ExceptionInInitializerError("Failed to create sessionFactory object." + e);
         }
     }
 
-    @Override
-    public List<Seat> findAll() {
-        try (var connection = ConnectionManager.open();
-             var prepareStatement = connection.prepareStatement(FIND_ALL_SQL)) {
-            List<Seat> seats = new ArrayList<>();
-
-            var result = prepareStatement.executeQuery();
-            while (result.next())
-                seats.add(new Seat(
-                                new Aircraft(result.getLong("aircraft_id"),
-                                        result.getString("model")),
-                                result.getString("seat_no")
-
-                        )
-                );
-            return seats;
-        } catch (SQLException e) {
-            throw new DaoException(e);
-        }
-    }
-
-    @Override
-    public Optional<Seat> findById(Aircraft aircraftId) {
-        try (var connection = ConnectionManager.open();
-             var prepareStatement = connection.prepareStatement(FIND_BY_ID_SQL)) {
-
-            Seat seat = null;
-            prepareStatement.setLong(1, aircraftId.getId());
-
-            var result = prepareStatement.executeQuery();
-            while (result.next())
-                seat = new Seat(
-                        new Aircraft(result.getLong("aircraft_id"),
-                                result.getString("model")),
-                        result.getString("seat_no")
-                );
-            return Optional.ofNullable(seat);
-        } catch (SQLException e) {
-            throw new DaoException(e);
-        }
-    }
-    @Override
-    public Seat save(Seat seat) {
-        try (var connection = ConnectionManager.open();
-             var prepareStatement = connection.prepareStatement(SAVE_SQL)) {
-
-            prepareStatement.setLong(1, seat.getAircraft_id().getId());
-            prepareStatement.setString(2, seat.getSeatNo());
-
-            prepareStatement.executeUpdate();
-        } catch (SQLException e) {
-            throw new DaoException(e);
-        }
-        return seat;
-    }
-
-    @Override
-    public boolean delete(Aircraft aircraftId) {
-        try (var connection = ConnectionManager.open();
-             var prepareStatement = connection.prepareStatement(DELETE_SQL)) {
-            prepareStatement.setLong(1, aircraftId.getId());
-
-            prepareStatement.executeUpdate();
-            return true;
-        } catch (SQLException e) {
-            throw new DaoException(e);
-        }
-    }
 
     private SeatDao() {
     }
 
     public static SeatDao getInstance() {
         return INSTANCE;
+    }
+
+    @Override
+    public boolean update(Seat seat) {
+        return false;
+    }
+
+    @Override
+    public List<Seat> findAll() {
+        return null;
+    }
+
+    @Override
+    public Optional<Seat> findById(Aircraft id) {
+        return Optional.empty();
+    }
+
+    @Override
+    public Seat save(Seat seat) {
+        Transaction transaction = null;
+        try (Session session = sessionFactory.openSession()) {
+            transaction = session.beginTransaction();
+            session.save(seat);
+            transaction.commit();
+            return seat;
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            throw new DaoException(e);
+        }
+    }
+
+    @Override
+    public boolean delete(Aircraft id) {
+        return false;
     }
 }

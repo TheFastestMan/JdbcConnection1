@@ -3,6 +3,10 @@ package dao;
 import entity.Flight;
 import entity.FlightStatus;
 import exception.DaoException;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+import org.hibernate.cfg.Configuration;
 import util.ConnectionManager;
 
 import java.sql.ResultSet;
@@ -15,158 +19,61 @@ import java.util.Optional;
 
 public class FlightDao implements Dao<Long, Flight> {
     private static final FlightDao INSTANCE = new FlightDao();
+    private static SessionFactory sessionFactory;
 
-    private static final String FIND_ALL_SQL = """
-            SELECT id, flight_no, departure_date, 
-            departure_airport_code, arrival_date,
-             arrival_airport_code,aircraft_id, status 
-            FROM flight
-            """;
-    private static final String FIND_BY_ID_SQL = FIND_ALL_SQL + """
-            WHERE id = ?
-            """;
-    private static final String UPDATE_SQL = """
-            UPDATE flight
-             SET flight_no = ?, 
-                 departure_date = ?,
-                 departure_airport_code = ?, 
-                 arrival_date = ?, 
-                 arrival_airport_code = ?,
-                 aircraft_id = ?,
-                 status = ?
-            WHERE id = ?
-            """;
-
-    private static final String SAVE_SQL = """
-            INSERT INTO flight (
-            flight_no, 
-            departure_date,
-            departure_airport_code, 
-            arrival_date, 
-            arrival_airport_code,
-            aircraft_id,
-            status
-            )
-            VALUES(?,?,?,?,?,?,?);
-            """;
-    private static final String DELETE_SQL = """
-            DELETE FROM flight WHERE
-            id = ?;
-            """;
-
-    @Override
-    public boolean update(Flight flight) {
-
-        try (var connection = ConnectionManager.open();
-             var prepareStatement = connection.prepareStatement(UPDATE_SQL)) {
-
-            prepareStatement.setString(1, flight.getFlightNo());
-            prepareStatement.setTimestamp(2, Timestamp.valueOf(flight.getDepartureDate()));
-            prepareStatement.setString(3, flight.getDepartureAirportCode());
-            prepareStatement.setTimestamp(4, Timestamp.valueOf(flight.getArrivalDate()));
-            prepareStatement.setString(5, flight.getArrivalAirportCode());
-            prepareStatement.setInt(6, flight.getAircraftId());
-            prepareStatement.setString(7, String.valueOf(flight.getStatus()));
-            prepareStatement.setLong(8, flight.getId());
-
-            return prepareStatement.executeUpdate() > 0;
-
-        } catch (SQLException e) {
-            throw new DaoException(e);
-        }
-
-    }
-
-    @Override
-    public List<Flight> findAll() {
-        try (var connection = ConnectionManager.open();
-             var prepareStatement = connection.prepareStatement(FIND_ALL_SQL)) {
-            List<Flight> flights = new ArrayList();
-
-            var result = prepareStatement.executeQuery();
-            while (result.next())
-                flights.add(
-                        buildFlight(result)
-                );
-            return flights;
-        } catch (SQLException e) {
-            throw new DaoException(e);
+    static {
+        try {
+            Configuration configuration = new Configuration();
+            configuration.configure();
+            configuration.addAnnotatedClass(FlightDao.class);
+            sessionFactory = configuration.buildSessionFactory();
+        } catch (Exception e) {
+            throw new ExceptionInInitializerError("Failed to create sessionFactory object." + e);
         }
     }
 
-    @Override
-    public Optional<Flight> findById(Long id) {
-
-        try (var connection = ConnectionManager.open();
-             var prepareStatement = connection.prepareStatement(FIND_BY_ID_SQL)) {
-            Flight flight = null;
-            prepareStatement.setLong(1, id);
-            var result = prepareStatement.executeQuery();
-            while (result.next()) {
-                flight = buildFlight(result);
-            }
-            return Optional.ofNullable(flight);
-        } catch (SQLException e) {
-            throw new DaoException(e);
-        }
-    }
-
-    @Override
-    public Flight save(Flight flight) {
-
-        try (var connection = ConnectionManager.open();
-             var prepareStatement = connection.prepareStatement(SAVE_SQL,
-                     Statement.RETURN_GENERATED_KEYS)) {
-
-            prepareStatement.setString(1, flight.getFlightNo());
-            prepareStatement.setTimestamp(2, Timestamp.valueOf(flight.getDepartureDate()));
-            prepareStatement.setString(3, flight.getDepartureAirportCode());
-            prepareStatement.setTimestamp(4, Timestamp.valueOf(flight.getArrivalDate()));
-            prepareStatement.setString(5, flight.getArrivalAirportCode());
-            prepareStatement.setInt(6, flight.getAircraftId());
-            prepareStatement.setString(7, String.valueOf(flight.getStatus()));
-
-            prepareStatement.executeUpdate();
-
-            var key = prepareStatement.getGeneratedKeys();
-            if (key.next())
-                flight.setId(key.getLong("id"));
-        } catch (SQLException e) {
-            throw new DaoException(e);
-        }
-        return flight;
-    }
-
-    @Override
-    public boolean delete(Long id) {
-
-        try (var connection = ConnectionManager.open();
-             var prepareStatement = connection.prepareStatement(DELETE_SQL)) {
-            prepareStatement.setLong(1, id);
-
-            return prepareStatement.executeUpdate() > 0;
-        } catch (SQLException e) {
-            throw new DaoException(e);
-        }
-    }
-
-    private Flight buildFlight(ResultSet result) throws SQLException {
-        return new Flight(
-                result.getLong("id"),
-                result.getString("flight_no"),
-                result.getTimestamp("departure_date").toLocalDateTime(),
-                result.getString("departure_airport_code"),
-                result.getTimestamp("arrival_date").toLocalDateTime(),
-                result.getString("arrival_airport_code"),
-                result.getInt("aircraft_id"),
-                FlightStatus.valueOf(result.getString("status"))
-        );
-    }
 
     private FlightDao() {
     }
 
     public static FlightDao getInstance() {
         return INSTANCE;
+    }
+
+    @Override
+    public boolean update(Flight flight) {
+        return false;
+    }
+
+    @Override
+    public List<Flight> findAll() {
+        return null;
+    }
+
+    @Override
+    public Optional<Flight> findById(Long id) {
+        return Optional.empty();
+    }
+
+    @Override
+    public Flight save(Flight flight) {
+        Transaction transaction = null;
+
+        try (Session session = sessionFactory.openSession()) {
+            transaction = session.beginTransaction();
+            session.save(flight);
+            transaction.commit();
+            return flight;
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            throw new DaoException(e);
+        }
+    }
+
+    @Override
+    public boolean delete(Long id) {
+        return false;
     }
 }

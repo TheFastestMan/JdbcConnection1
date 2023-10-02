@@ -1,68 +1,65 @@
 package dao;
 
-import entity.Aircraft;
-import entity.Airport;
+import entity.User;
 import exception.DaoException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
-import util.ConnectionManager;
 
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class AirportDao implements Dao<String, Airport> {
-    private static final AirportDao INSTANCE = new AirportDao();
+public class UserDao implements Dao<Long, User> {
+
+    private static final UserDao INSTANCE = new UserDao();
     private static SessionFactory sessionFactory;
 
     static {
         try {
             Configuration configuration = new Configuration();
             configuration.configure();
-            configuration.addAnnotatedClass(AirportDao.class);
+            configuration.addAnnotatedClass(User.class);
             sessionFactory = configuration.buildSessionFactory();
         } catch (Exception e) {
             throw new ExceptionInInitializerError("Failed to create sessionFactory object." + e);
         }
     }
 
-
-    private AirportDao() {
+    private UserDao() {
+        // Private constructor to prevent external instantiation
     }
 
-    public static AirportDao getInstance() {
+    public static UserDao getInstance() {
         return INSTANCE;
     }
 
     @Override
-    public boolean update(Airport airport) {
+    public boolean update(User user) {
+        // Implement your update logic here
         return false;
     }
 
     @Override
-    public List<Airport> findAll() {
+    public List<User> findAll() {
+        // Implement logic to retrieve all users
         return null;
     }
 
     @Override
-    public Optional<Airport> findById(String id) {
+    public Optional<User> findById(Long id) {
+        // Implement logic to find a user by its ID
         return Optional.empty();
     }
 
     @Override
-    public Airport save(Airport airport) {
-
+    public User save(User user) {
         Transaction transaction = null;
         try (Session session = sessionFactory.openSession()) {
             transaction = session.beginTransaction();
-            session.save(airport);
+            session.save(user);
             transaction.commit();
-            return airport;
-
+            return user;
         } catch (Exception e) {
             if (transaction != null) {
                 transaction.rollback();
@@ -72,7 +69,8 @@ public class AirportDao implements Dao<String, Airport> {
     }
 
     @Override
-    public boolean delete(String id) {
+    public boolean delete(Long id) {
+        // Implement your delete logic here
         return false;
     }
 }
