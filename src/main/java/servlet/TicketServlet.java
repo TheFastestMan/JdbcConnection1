@@ -21,8 +21,8 @@ public class TicketServlet extends HttpServlet {
 
         Long flightId = Long.valueOf(req.getParameter("flightId"));
 
-        req.setAttribute("tickets",ticketService.findAllByFlightId(flightId));
-        req.getRequestDispatcher(JspHelper.getPath("tickets")).forward(req,resp );
+        req.setAttribute("tickets", ticketService.findAllByFlightId(flightId));
+        req.getRequestDispatcher(JspHelper.getPath("tickets")).forward(req, resp);
 
 
     }

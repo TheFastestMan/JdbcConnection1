@@ -21,7 +21,7 @@ public class AircraftDao implements Dao<Long, Aircraft> {
         try {
             Configuration configuration = new Configuration();
             configuration.configure();
-            configuration.addAnnotatedClass(AircraftDao.class);
+            configuration.addAnnotatedClass(Aircraft.class);
             sessionFactory = configuration.buildSessionFactory();
 
         } catch (Exception e) {

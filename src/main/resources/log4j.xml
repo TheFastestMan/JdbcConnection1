@@ -11,10 +11,10 @@
     </appender>  <!--  добавляем при необходимости например данный озночает для консоли -->
 
     <appender name="file" class="org.apache.log4j.RollingFileAppender">
-        <param name="file" value="hibernate-flight"/><!-- имя файла -->
+        <param name="file" value="/Users/rail/IdeaProjects/SkillSpace_Enterprise/3JDBC-Servlet-JSP/JdbcConnection1/JdbcConnection1.log"/><!-- имя файла так же если прописать весь путь то он туда и запишет-->
 
         <param name="append" value="true"/><!-- значит при следующей записи будет записывать ту да же а не в новый файл-->
-        <param name="maxFileSize" value="1KB"/><!-- размер памяти файла, при достижении этого размера будет создаватся новый файл и писать в него-->
+        <param name="maxFileSize" value="10MB"/><!-- размер памяти файла, при достижении этого размера будет создаватся новый файл и писать в него-->
         <param name="maxBackupIndex" value="10"/><!-- указывает скок файлов будем таких создавать при достижении 10 будет переписыват 1й файл и в нем будет стиратся инфа что бы записать в нее -->
 
         <layout class="org.apache.log4j.PatternLayout">
@@ -27,7 +27,7 @@
     </appender><!--  добавляем при необходимости например данный озночает для файла -->
 
     <root>
-        <level value="info"/> <!-- уровень логгирования -->
+        <level value="debug"/> <!-- уровень логгирования -->
         <appender-ref ref="console"/>  <!--  означает вывести логи на консоль -->
 
         <appender-ref ref="file"/>  <!--  означает добавить лог в файл -->

@@ -1,17 +1,12 @@
 package dao;
 
-import entity.Aircraft;
 import entity.Airport;
 import exception.DaoException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
-import util.ConnectionManager;
 
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,7 +18,7 @@ public class AirportDao implements Dao<String, Airport> {
         try {
             Configuration configuration = new Configuration();
             configuration.configure();
-            configuration.addAnnotatedClass(AirportDao.class);
+            configuration.addAnnotatedClass(Airport.class);
             sessionFactory = configuration.buildSessionFactory();
         } catch (Exception e) {
             throw new ExceptionInInitializerError("Failed to create sessionFactory object." + e);

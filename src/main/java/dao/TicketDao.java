@@ -1,23 +1,16 @@
 package dao;
 
-import dto.TicketFilter;
+
 import entity.Flight;
-import entity.FlightStatus;
 import entity.Ticket;
 import exception.DaoException;
 import org.hibernate.*;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.criterion.Restrictions;
-import util.ConnectionManager;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
+
 
 public class TicketDao implements Dao<Long, Ticket> {
     private final static TicketDao INSTANCE = new TicketDao();
