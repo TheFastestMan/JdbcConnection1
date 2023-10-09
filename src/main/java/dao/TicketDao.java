@@ -7,6 +7,7 @@ import exception.DaoException;
 import org.hibernate.*;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.criterion.Restrictions;
+import util.HibernateUtil;
 
 import java.util.List;
 import java.util.Optional;
@@ -17,15 +18,7 @@ public class TicketDao implements Dao<Long, Ticket> {
     private static SessionFactory sessionFactory;
 
     static {
-        try {
-            Configuration configuration = new Configuration();
-            configuration.configure();
-            configuration.addAnnotatedClass(Ticket.class);
-            configuration.addAnnotatedClass(Flight.class);
-            sessionFactory = configuration.buildSessionFactory();
-        } catch (Exception e) {
-            throw new ExceptionInInitializerError("Failed to create sessionFactory object." + e);
-        }
+      sessionFactory = HibernateUtil.configureWithAnnotatedClass(Ticket.class);
     }
 
     private TicketDao() {

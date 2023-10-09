@@ -2,11 +2,13 @@ package dao;
 
 import entity.Aircraft;
 import entity.Seat;
+import entity.User;
 import exception.DaoException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
+import util.HibernateUtil;
 
 import java.util.List;
 import java.util.Optional;
@@ -16,14 +18,7 @@ public class SeatDao implements Dao<Aircraft, Seat> {
     private static SessionFactory sessionFactory;
 
     static {
-        try {
-            Configuration configuration = new Configuration();
-            configuration.configure();
-            configuration.addAnnotatedClass(Seat.class);
-            sessionFactory = configuration.buildSessionFactory();
-        } catch (Exception e) {
-            throw new ExceptionInInitializerError("Failed to create sessionFactory object." + e);
-        }
+        sessionFactory = HibernateUtil.configureWithAnnotatedClass(Seat.class);
     }
 
 
